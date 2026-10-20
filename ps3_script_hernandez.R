@@ -74,8 +74,48 @@ head(can_gas_q)
 
 # Q) Does the quarterly series still appear to be seasonal? -> YES! 
 
-
-
-
 can_gas_q |> autoplot(Volume)
+
+retail_ts |> autoplot(sales)
+
+retail_ts |>
+  autoplot(sales) +
+  labs(
+    title = "U.S. Retail and Food Services Sales",
+    subtitle = "Seasonally adjusted vs. not seasonally adjusted",
+    x = NULL, y = "Millions of dollars", color = NULL
+  ) +
+  theme_minimal()
+
+# On the January of every year, we see a massive drop followed by a corrective rise. 
+# The SA series also has this pattern. The seasonal adjustment doesn't change the overall
+# trend of the data. However, it does capture the primary movements without the seasonality
+# creating the big dips and spikes. 
+
+can_gas |> 
+  autoplot(Volume) + 
+  labs(
+    title = "Volume of Gas Produced through Time", 
+    x = "Months", 
+    y = "Volume of Gas Produced"
+  ) + 
+  theme_minimal()
+
+can_gas |> 
+  autoplot(Volume) + 
+  labs(
+    title = "Volume of Gas Produced through Time", 
+    x = "Months", 
+    y = "Volume of Gas Produced"
+  ) + geom_smooth()
+  theme_minimal()
+  
+# I applied the geom_smooth() so we can see the general trend without the 
+# seasonality in the way. We get a more accurate picture of how gas production
+# is increasing through time. 
+
+
+
+
+
 

@@ -114,6 +114,26 @@ can_gas |>
 # seasonality in the way. We get a more accurate picture of how gas production
 # is increasing through time. 
 
+# STARTING PART 3 - Data Transformations (log and growth rates)
+  
+# 3.1a - can_gas table does show that the volumes increase as the series grows. 
+# there is greater seasonality swings in the middle section of the graph
+# compared to the earlier years in the 60s-70s. Much smaller swings. 
+  
+  
+only_vol <- subset(can_gas, select = Volume) # select wasn't working?
+log_vol <- log(only_vol, base = exp(1))
+can_gas <- mutate(can_gas, log_volume = log_vol)  
+can_gas
+
+can_gas |> 
+  autoplot(log_volume) + 
+  labs(
+    title = "log(Volume) of Gas Produced through Time", 
+    x = "Months", 
+    y = "% of Gas Produced"
+  ) + geom_smooth()
+theme_minimal()
 
 
 

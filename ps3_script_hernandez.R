@@ -86,7 +86,7 @@ retail_ts |>
     x = NULL, y = "Millions of dollars", color = NULL
   ) +
   theme_minimal()
-
+# 2.7 b 
 # On the January of every year, we see a massive drop followed by a corrective rise. 
 # The SA series also has this pattern. The seasonal adjustment doesn't change the overall
 # trend of the data. However, it does capture the primary movements without the seasonality
@@ -152,8 +152,43 @@ log_retail |>
   ) + geom_smooth()
 theme_minimal()
 
-# 3.1c
+# 3.2 - Growth Rates
 
+# 3.2a 
 
+can_gas <- can_gas |>
+  mutate(
+    growth_direct = 100 * difference(Volume) / lag(Volume),
+    growth_logdiff = 100 * difference(log_volume)
+  )
 
+head(can_gas)
+     
+can_gas |> 
+  autoplot(growth_direct) + 
+  labs(
+    title = "Growth Rate of Gas Volume through time", 
+    x = "Months", 
+    y = "Growth Rate of Volume"
+  ) + geom_smooth()
+theme_minimal()
 
+# I think the log difference approximation is pretty good. We see the linear trend
+# and we capture the movement around the line and the general trend. 
+
+# 3.3. SA vs. NSA Growth Rates
+
+retail_ts <- retail_ts |>
+  group_by_key() |>
+  mutate(growth_mom = 100 * difference(log(sales))) |>
+  ungroup()
+
+retail_ts |>
+  autoplot(growth_mom) +
+  labs(
+    title = "Month-over-Month Growth: SA vs. NSA Retail Sales",
+    x = NULL, y = "Growth rate (%)", color = NULL
+  ) +
+  theme_minimal()
+
+# The RSAFSNA is significantly noisier. This is probably because 

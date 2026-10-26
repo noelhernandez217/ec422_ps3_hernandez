@@ -121,20 +121,38 @@ can_gas |>
 # compared to the earlier years in the 60s-70s. Much smaller swings. 
   
   
-only_vol <- subset(can_gas, select = Volume) # select wasn't working?
-log_vol <- log(only_vol, base = exp(1))
-can_gas <- mutate(can_gas, log_volume = log_vol)  
-can_gas
+# 3.1b - The shape of the trend changed where we see much more seasonality 
+# in the movement of the graph in earlier years. The middle is elevated upwards. 
+# The end of the graph has much lower seasonality and is more linear. 
+  
+can_gas <- can_gas |> mutate(log_volume = log(Volume))
+head(can_gas)
 
 can_gas |> 
   autoplot(log_volume) + 
   labs(
     title = "log(Volume) of Gas Produced through Time", 
     x = "Months", 
-    y = "% of Gas Produced"
+    y = "log(Volume)"
   ) + geom_smooth()
 theme_minimal()
 
+# 3.1c - The transformation has made this plot almost linear. We still see the effects of
+# seasonality. Its been significantly minimized. 
+
+log_retail <- retail_ts |> filter(series_id == "RSAFSNA") |> mutate(log_sales = log(sales))
+head(log_retail)
+
+log_retail |> 
+  autoplot(log_sales) + 
+  labs(
+    title = "log(sales) through time", 
+    x = "Months", 
+    y = "log(sales)"
+  ) + geom_smooth()
+theme_minimal()
+
+# 3.1c
 
 
 

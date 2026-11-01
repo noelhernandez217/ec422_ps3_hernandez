@@ -4,23 +4,171 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+Here are some libraries I thought we would need. I just downloaded them all at the start.
 
 ```{r}
-1 + 1
+library(tidyverse)
+library(fpp3)
+library(glue)
+library(ggplot2)
+library(fable)
+install.packages("seasonal") # from 4.3
 ```
 
-You can add options to executable code like this
+# Part 2 - Time and Tsibbles
+
+Getting the data, reorganizing it and setting up data folder:
 
 ```{r}
-#| echo: false
-2 * 2
+
+retail_raw <- read_csv("data/retail_sales_raw.csv")
+
+head(retail_raw)
+
+retail_raw <- read_csv(
+  "data/retail_sales_raw.csv",
+  na = ".",
+  col_types = cols(
+    observation_date = col_date(format = "%Y-%m-%d"),
+    RSAFS = col_double(),
+    RSAFSNA = col_double()
+  )
+)
+
+retail_raw_long <- retail_raw |>
+  select(observation_date, RSAFS, RSAFSNA) |>
+  pivot_longer(cols = c(RSAFS, RSAFSNA), names_to = "series_id", values_to = "sales")
+
+retail_ts <- retail_raw_long |>
+  mutate(Month = yearmonth(observation_date)) |>
+  as_tsibble(index = Month, key = series_id)
+
+head(retail_ts)
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+### 2.5b
+Make a working copy of the data called can_gas, and check it for gaps in the monthly dates. Fill in the blanks below:
+
+```{r}
+can_gas <- canadian_gas |>
+  select(Month, Volume)
+
+has_gaps(can_gas)         
+head(can_gas)
+```
+
+# 2.6a - 2.6d
+
+```{r}
+
+can_gas_recent <- can_gas |>
+  filter(Month >= yearmonth("1990 Jan"))
+
+head(can_gas_recent)
+
+can_gas_recent <- can_gas_recent |>
+  mutate(year    = year(Month),
+         month   = month(Month, label = TRUE),
+         quarter = quarter(Month))
+
+can_gas_recent |>
+  as_tibble() |>
+  group_by(month) |>
+  summarize(avg_volume = mean(Volume))
+
+can_gas_recent |>
+  mutate(next_month           = Month + 1,
+         same_month_last_year = Month - 12) |>
+  head()
+
+# 2.6d
+can_gas_q <- can_gas |>
+  filter(Month <= yearmonth("2004 Dec")) |>
+  index_by(Quarter = yearquarter(Month)) |>
+  summarize(Volume = sum(Volume))
+
+head(can_gas_q)
+
+can_gas_q |> autoplot(Volume)
+
+```
+
+### 2.6d Question: 
+In one or two sentences: why do we sum() the monthly values for gas production rather than take their mean()? Also, does the quarterly series still appear to be seasonal?
+
+**Response:** 
+The reason we take the sum instead of the mean per month is because the mean would capture the average production of gas in that month. Gas production is a flow. Its an amount produced over time. We don't want average monthly production which is what mean() would give us. If we want quarterly production, we need to add up all the production from each month that falls into the quarter. And yes, the quarterly series still appears to be seasonal. 
+
+### 2.7a
+
+```{r}
+retail_ts |> autoplot(sales)
+```
+
+### 2.7b
+
+```{r}
+retail_ts |>
+  autoplot(sales) +
+  labs(
+    title = "U.S. Retail and Food Services Sales",
+    subtitle = "Seasonally adjusted vs. not seasonally adjusted",
+    x = NULL, y = "Millions of dollars", color = NULL
+  ) +
+  theme_minimal()
+```
+
+### What repeating pattern within each year do you see in the NSA series (for example, a spike or a drop at the same time every year)? Does the SA series have this pattern?
+
+On the January of every year, we see a massive drop followed by a corrective rise. The SA series also has this pattern.
+
+### Do the two series follow the same path over the long run, or does seasonal adjustment also change the overall trend and the larger ups and downs (such as recessions)?
+
+The seasonal adjustment doesn't change the overall trend of the data. However, it does capture the primary movements without the seasonality creating the big dips and spikes. 
+### 2.7c
+
+```{r}
+can_gas |> 
+  autoplot(Volume) + 
+  labs(
+    title = "Volume of Gas Produced through Time", 
+    x = "Months", 
+    y = "Volume of Gas Produced"
+  ) + 
+  theme_minimal()
+```
+
+#2.7d - geom_smooth()
+
+```{r}
+can_gas |> 
+  autoplot(Volume) + 
+  labs(
+    title = "Volume of Gas Produced through Time", 
+    x = "Months", 
+    y = "Volume of Gas Produced"
+  ) + geom_smooth()
+  theme_minimal()
+```
+I applied the geom_smooth() so we can see the general trend without the seasonality in the way. We get a more accurate picture of how gas production is increasing through time. 
+
+# Part 3 - Transformations
+
+```{r}
+
+```
+
+# Part 4 - Seasonality
+
+```{r}
+
+```
+
+# Part 5 - Forecast Evaluation
+
+```{r}
+
+```
+
+# Part 6 - Reflection

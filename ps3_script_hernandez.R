@@ -1,7 +1,7 @@
 library(tidyverse)
 library(fpp3)
 library(glue)
-library(ggplot)
+library(ggplot2)
 library(fable)
 
 

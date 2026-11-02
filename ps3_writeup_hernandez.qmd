@@ -21,7 +21,7 @@ library(fpp3)
 library(glue)
 library(ggplot2)
 library(fable)
-install.packages("seasonal") # from 4.3
+# install.packages("seasonal") # from 4.3, run it once or it causes some problems
 ```
 
 # Part 2 - Time and Tsibbles

@@ -144,17 +144,27 @@ theme_minimal()
 # 3.1c - The transformation has made this plot almost linear. We still see the effects of
 # seasonality. Its been significantly minimized. 
 
-log_retail <- retail_ts |> filter(series_id == "RSAFSNA") |> mutate(log_sales = log(sales))
-head(log_retail)
+# Level
+log_retail |> 
+  autoplot(sales) + 
+  labs(
+    title = "RSAFSNA Sales (Level) through Time", 
+    x = "Months", 
+    y = "Millions of dollars"
+  ) + 
+  geom_smooth() +
+  theme_minimal()
 
+# Log
 log_retail |> 
   autoplot(log_sales) + 
   labs(
-    title = "log(sales) through time", 
+    title = "log(Sales) through Time", 
     x = "Months", 
     y = "log(sales)"
-  ) + geom_smooth()
-theme_minimal()
+  ) + 
+  geom_smooth() +
+  theme_minimal()
 
 # 3.2 - Growth Rates
 
